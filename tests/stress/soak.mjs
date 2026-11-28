@@ -10,7 +10,7 @@
 import { selfRun, flags, prng, youngGCs, badSlots, heap } from "./lib/util.mjs";
 import { stubPage, snapshot } from "./lib/stub-dom.mjs";
 
-const { createEngine, seeded } = await import("../../src/index.ts");
+const { createEngine } = await import("../../src/index.ts");
 const { effects, emitter, KINDS } = await import("../../src/fx.ts");
 const { steer } = await import("../../src/steer.ts");
 const { waves, drops, score } = await import("../../src/rules.ts");

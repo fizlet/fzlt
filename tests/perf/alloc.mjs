@@ -8,7 +8,6 @@
 // from what you measured. `npm run perf` runs it too (and puts it in the JSON report); on its own:
 // `npm run test:alloc` (it builds tests/perf/fixture). Options: ALLOC_FRAMES (default 600).
 import assert from "node:assert/strict";
-import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { buildFixture } from "./fixture/build.mjs";
 import { clicker, gcStats, launch, serve } from "./harness.mjs";

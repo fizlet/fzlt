@@ -6,7 +6,7 @@ import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { api, declarations, leadComment, undocumented } from "../scripts/api.mjs";
-import { BRICKS, STATUS } from "../scripts/bricks.mjs";
+import { BRICKS } from "../scripts/bricks.mjs";
 
 // The declarations come from the build (npm run check builds after the tests).
 if (!existsSync("dist/index.d.ts")) execFileSync("node", ["scripts/build.mjs"], { stdio: "inherit" });

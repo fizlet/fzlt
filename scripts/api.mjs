@@ -1,8 +1,8 @@
 // The public API of each module, read from the source of truth: the built declarations (dist/*.d.ts,
 // which keep the source's doc comments) through the TypeScript compiler API (`typescript`, already
 // the repo's type checker: no new dependency), and the source file's leading comment for the
-// summary. The brick pages and llms-full.txt are generated from this at site build time
-// (scripts/site.mjs), so they cannot drift from the code; tests/api.test.mjs checks it against the
+// summary. The brick pages and llms-full.txt are generated from this at site build time,
+// so they cannot drift from the code; tests/api.test.mjs checks it against the
 // modules' real runtime exports and fails on an export without a doc comment.
 import { readdirSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";

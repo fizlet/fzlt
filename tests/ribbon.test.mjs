@@ -31,7 +31,6 @@ const scene = (ctx) => {
   return d;
 };
 const flat = () => terrain({ cols: 32, rows: 32, cell: 1, x0: -16, z0: -16 });
-const near = (a, b, e, m = "") => assert.ok(Math.abs(a - b) < e, `${m} ${a} vs ${b}`);
 
 test("ribbon: a straight band on flat ground lands where the diorama projects its corners", () => {
   const ctx = new Rec(), d = scene(ctx), t = flat();
