@@ -62,8 +62,9 @@ export interface FxOptions {
   gravity?: number;
 }
 
-/** `v` is a finite number (NaN and ±Infinity fail). No allocation: safe in the hot path. */
-const finite = (v: number) => v - v === 0;
+/** `v` is a number the pool can hold: under 1e30 either way (NaN and ±Infinity fail). The fields are
+ *  32-bit floats, where a larger finite number is stored as Infinity. No allocation: safe in the hot path. */
+const finite = (v: number) => v * v < 1e60;
 function check(ok: boolean, what: string) {
   if (!ok) throw new RangeError(`effects: ${what}`);
 }
@@ -96,7 +97,7 @@ export function effects(o: FxOptions = {}) {
 
   function spawn(k: number, x: number, y: number, vx: number, vy: number, size: number, life: number, c: number, rot = 0, spin = 0, w = 0) {
     const i = st[0]!;
-    if (i >= cap || !(finite(x) && finite(y) && finite(vx) && finite(vy) && finite(size) && life > 0 && life < Infinity)) return st[3]!++, false;
+    if (i >= cap || !(finite(x) && finite(y) && finite(vx) && finite(vy) && finite(size) && life > 0 && finite(life))) return st[3]!++, false;
     st[0] = i + 1;
     kind[i] = k;
     X[i] = x;
