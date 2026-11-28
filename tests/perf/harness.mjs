@@ -74,7 +74,7 @@ export async function measure(browser, target, { seconds = 10, throttle = 4, war
   await traced;
   const metrics = Object.fromEntries((await cdp.send("Performance.getMetrics")).metrics.map((m) => [m.name, m.value]));
   await context.close();
-  onTrace?.(events); // callers that break the window down (tests/stress/frame.mjs) read the raw trace
+  onTrace?.(events); // callers that break the window down read the raw trace
 
   const frames = frameStats(stamps);
   return { name: target.name, throttle, seconds, fcp, ...frames, layerizeMs: layerizeMs(events, frames.frames), heapMB: metrics.JSHeapUsedSize / 1048576, ...gcStats(events), errors };

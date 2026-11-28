@@ -1,5 +1,5 @@
-// Size measurement shared by scripts/size.mjs (the CI budget) and scripts/site.mjs (the numbers on
-// the website): each entry minified + gzipped, everything it pulls in included.
+// Size measurement shared by scripts/size.mjs (the CI budget) and scripts/readme-sizes.mjs (the numbers
+// in the README): each entry minified + gzipped, everything it pulls in included.
 import { build } from "esbuild";
 import { gzipSync } from "node:zlib";
 

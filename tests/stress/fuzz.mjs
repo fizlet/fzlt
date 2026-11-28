@@ -293,7 +293,7 @@ export async function fuzzRun(seed, run, nOps, ops, trace = false) {
         add("hang", op.name + why, args.map((v) => (sized(w) && cell(w, v) ? "ok" : v)), { note: "infinite loop: npm run test:stress -- huge" });
         continue;
       }
-      const steps0 = w.e.steps, wasRunning = w.e.running;
+      const wasRunning = w.e.running;
       let threw = null;
       w.silent = null;
       const c0 = performance.now();

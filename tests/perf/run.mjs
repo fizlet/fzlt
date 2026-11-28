@@ -3,7 +3,7 @@
 // exits 1 when anything is over budget. CI and the brain's perf auditor both call this.
 //   PERF_SECONDS (default 10)   PERF_THROTTLE (default 4)   PERF_OUT (default perf-results.json)
 //   BLITZ_DIR=<built Blitz dir> also measures Battlefield Blitz (BLITZ_PATH: page inside it, default play/)
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { cpus, loadavg } from "node:os";
 import { buildFixture } from "./fixture/build.mjs";
 import { clicker, fmt, launch, measure, serve } from "./harness.mjs";
