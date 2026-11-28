@@ -209,6 +209,28 @@ test("fx: a full pool stops the blast's work and counts the drops", () => {
   assert.equal(fx.live, 8);
 });
 
+test("fx: a finite number too large for the pool's 32-bit fields is refused, not stored as Infinity", () => {
+  const stored = (fx) => fx.raw.f.every((a) => a.subarray(0, fx.live).every(Number.isFinite));
+  const fx = effects({ cap: 64, gravity: 300 }), em = emitter(fx, { spark: { shape: "disc", drag: 0, gravity: 1, angle: 0, spread: 6, speed: [50, 90], size: [2, 4], life: [0.5, 1] } });
+  for (const big of [1e39, 1e308, -1e308]) {
+    // x, y, vx, vy, size and life in turn (a life of 1e39 s used to hold its slot for good)
+    for (let a = 1; a < 7; a++) assert.equal(fx.spawn(...[0, 10, 10, 5, 5, 4, 1, 0].map((v, i) => (i === a ? big : v))), false, `spawn argument ${a} = ${big}`);
+    fx.blast(big, 1), fx.blast(1, big), fx.blast(1, 1, Math.abs(big));
+    fx.word(big, 1, 0, 0), fx.word(1, big, 0, 0), fx.word(1, 1, 0, 0, big);
+    em.emit(em.ids.spark, big, 1, 4), em.emit(em.ids.spark, 1, big, 4), em.emit(em.ids.spark, 1, 1, 4, 0, 1, big);
+    fx.kick(big);
+    fx.gravity = big;
+  }
+  assert.equal(fx.live, 0, "nothing was let in");
+  assert.equal(fx.dropped, 3 * 15, "and every refusal is counted");
+  assert.equal(fx.shake, 0);
+  // Large numbers the fields do hold are still taken, and stay finite while they live.
+  assert.equal(fx.spawn(0, 1e9, -1e9, 2 ** 53, -(2 ** 53), 1e9, 2, 0), true);
+  fx.blast(1e9, 1e9, 3);
+  assert.ok(stored(fx));
+  for (let i = 0; i < 30; i++) fx.step(1 / 30), assert.ok(stored(fx), `step ${i}`);
+});
+
 test("fx: inputs are validated (capacities, finite numbers, a life that ends)", () => {
   assert.throws(() => effects({ cap: 0 }), RangeError);
   assert.throws(() => effects({ cap: 1.5 }), RangeError);

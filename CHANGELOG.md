@@ -1,5 +1,23 @@
 # Changelog
 
+## Unreleased
+
+- **Fix: `@fzlt/core/fx` let in a finite number too large for its 32-bit fields, and stored it as
+  Infinity.** The pool's fields are 32-bit floats, and the check for a finite number looked at the
+  64-bit value: `spawn()` with a position, velocity, size or life over about 3.4e38 (and `blast()`,
+  `word()`, `emit()` with such a position, power, size or scale) was let in and held ±Infinity, and a
+  life that large never ended, so it held its slot until `clear()`. Such a number is now refused and
+  counted in `dropped`, as NaN and ±Infinity already were; the limit is 1e30 either way, far past any
+  page. Found by the fuzz stress test (seed 1, run 33). Sizes unchanged (fx 2,792 B gz, the page
+  build 7,103 B). Test: `tests/bricks.test.mjs`.
+- Stress tests, the fuzz's own faults (it reported them as findings): its timeline call picks one of
+  its five methods for any argument (a hostile one picked none and threw a TypeError in the test); a
+  Board search on a cell id that is off a small board must throw its named error, which is no longer
+  a "documented call threw"; and NaN that shows during a documented call, after an earlier call in
+  the run took in a hostile value silently, is graded as that earlier call's (`after` names it), not
+  as a documented one's. The findings on undocumented input stay open, so the default run still
+  exits 1; `--fixed` passes.
+
 ## 0.30.0
 
 - **`@fzlt/core/ribbon-tracks`** (new entry point of the ribbon brick, ALPHA; 3,778 B gz with all of it,

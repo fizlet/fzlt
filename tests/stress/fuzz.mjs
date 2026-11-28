@@ -9,6 +9,8 @@
 //   doc-throw       a documented call threw                                   (high)
 //   deferred-throw  a later frame threw because of an earlier call            (high)
 //   nan-state       NaN or ±Infinity in a state slot afterwards               (high if documented, med if not)
+//                   (documented: this call's arguments and every earlier call's in the run; `after` names
+//                   the first undocumented call the run took in silently)
 //   stall           a running engine stopped stepping                         (high)
 //   unbounded       a bounded thing grew past its cap                         (med)
 //   unclear-error   an undocumented input threw a raw JS error, not a named one (low)
@@ -214,7 +216,7 @@ const OPS = [
   } },
   { name: "timeline.to(arr,{dur,delay,stagger})", args: ["pos", "dt", "dt"], need: "timeline", call: (w, [dur, delay, stagger], b) => b.tl.to(b.arr, { 1: [0, 5] }, { dur, delay, stagger }) },
   { name: "timeline.seek(t)", args: ["dt"], need: "timeline", call: (w, [t], b) => b.tl.seek(t) },
-  { name: "timeline.play/reverse/pause/finish/revert", args: ["idx"], need: "timeline", call: (w, [k], b) => b.tl[["play", "reverse", "pause", "finish", "revert", "play", "play", "reverse"][k % 8]]() },
+  { name: "timeline.play/reverse/pause/finish/revert", args: ["idx"], need: "timeline", call: (w, [k], b) => b.tl[["play", "reverse", "pause", "finish", "revert", "play", "play", "reverse"][(k >>> 0) % 8]]() }, // k only picks the method: a hostile k must still pick one
 ];
 // The self-test fixture: a "brick" that turns NaN into state and writes a style it never records.
 const FIXTURE = [
@@ -310,6 +312,8 @@ export async function fuzzRun(seed, run, nOps, ops, trace = false) {
         continue;
       }
       if (threw) {
+        // The named error a call must throw (a cell id under 8 that is off a smaller board) is no finding.
+        if (!w.dead && op.throws?.(args, w)) continue;
         if (documented) add(w.dead ? "lifecycle-throw" : "doc-throw", op.name, argsOut, { error: String(threw) });
         else if (!isClear(threw)) add("unclear-error", op.name, argsOut, { error: String(threw) });
         continue;
@@ -324,7 +328,10 @@ export async function fuzzRun(seed, run, nOps, ops, trace = false) {
         continue;
       }
       const nan = scanWorld(w);
-      if (nan.length) add("nan-state", op.name, argsOut, { documented, slots: nan });
+      // A hostile value an earlier call took in silently can show only now (drops({ speed: "abc" })
+      // is NaN at its first timed drop): that is the earlier call's finding, not a documented one's.
+      if (nan.length) add("nan-state", op.name, argsOut, { documented: documented && !w.tainted, ...(documented && w.tainted ? { after: w.tainted } : {}), slots: nan });
+      if (!documented) w.tainted ??= op.name;
       // A frame that threw a named error stopped the engine and said why (onError): not a silent stall.
       const stalled = !w.dead && w.e.steps === t0 && !(w.stopped && isClear(w.stopped));
       if (stalled) add("stall", op.name, argsOut, { documented, steps: w.e.steps, running: wasRunning });
